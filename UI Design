@@ -1,0 +1,37 @@
+*Landing Page (Public)* 
+
+Buttons:
+Login as Admin
+Login as Institution
+Verify Credential
+
+ *Admin Dashboard UI* 
+
+Approve Institution
+
+Institution Name
+Wallet Address (DID)
+Approve Button
+
+View Registered Institutions
+
+Table of approved institutions
+
+ *Institution Dashboard UI* 
+
+Issue Credential
+View Issued Credentials
+Revoke Credential
+
+ *Student Wallet UI* 
+
+Institution Name
+Degree
+Issue Date
+Generate ZKP
+Download VC
+Share VC
+
+ *Verifier UI (Public)* 
+
+Upload ZKP
