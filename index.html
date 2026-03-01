@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blockchain Credential Verifier</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 40px auto; background-color: #f4f7f6; color: #333; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .section { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        h2 { color: #2c3e50; }
+        button { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2980b9; }
+        input[type="text"], input[type="file"] { margin: 10px 0; display: block; width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        #status, #vStatus { margin-top: 15px; font-weight: bold; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Credential System</h1>
+        
+        <div class="section">
+            <h2>Issue Certificate</h2>
+            <p>Select a certificate PDF/Image to upload to IPFS and Blockchain.</p>
+            <input type="file" id="certFile">
+            <input type="text" id="holder" placeholder="Student Wallet Address (Optional)">
+            <button onclick="issue()">Issue to Blockchain</button>
+            <div id="status"></div>
+        </div>
+
+        <div class="section">
+            <h2>Verify Certificate</h2>
+            <p>Enter the IPFS Hash (CID) to check validity.</p>
+            <input type="text" id="cidInput" placeholder="Enter IPFS Hash (Qm...)">
+            <button onclick="verify()" style="background:#2ecc71">Check Validity</button>
+            <div id="vStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5000";
+
+        async function issue() {
+            const status = document.getElementById('status');
+            const fileInput = document.getElementById('certFile');
+            const holder = document.getElementById('holder').value;
+
+            if (!fileInput.files[0]) return alert("Please select a file!");
+            
+            status.innerHTML = "⏳ Processing... (Uploading to IPFS & Mining Transaction)";
+            
+            const formData = new FormData();
+            formData.append('certificate', fileInput.files[0]);
+            formData.append('holderAddress', holder);
+
+            try {
+                const response = await fetch(`${API_URL}/issue`, { method: 'POST', body: formData });
+                const data = await response.json();
+                if(data.success) {
+                    status.className = "success";
+                    status.innerHTML = `✅ Issued!<br><b>IPFS Hash:</b> ${data.ipfsHash}<br><small>TX: ${data.txHash}</small>`;
+                } else { throw new Error(data.error); }
+            } catch (err) {
+                status.className = "error";
+                status.innerText = "❌ Error: " + err.message;
+            }
+        }
+
+        async function verify() {
+            const status = document.getElementById('vStatus');
+            const cid = document.getElementById('cidInput').value;
+            if(!cid) return alert("Enter a CID!");
+
+            try {
+                const response = await fetch(`${API_URL}/verify`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ ipfsHash: cid })
+                });
+                const data = await response.json();
+                console.log(data)
+                if(data.isValid) {
+                    status.className = "success";
+                    status.innerHTML = `✅ VALID CERTIFICATE<br>Issued by: ${data.issuer}`;
+                } else {
+                    status.className = "error";
+                    status.innerText = "❌ INVALID OR REVOKED";
+                }
+            } catch (err) { status.innerText = "Error connecting to server."; }
+        }
+    </script>
+</body>
+</html>
