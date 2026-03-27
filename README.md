@@ -1,18 +1,18 @@
-<<<<<<< HEAD
-# credential-verification-blockchain-
-Internship project at Kerala Blockchain Academy - Credential Verification Using Blockchain
-=======
-# Sample Hardhat Project
+# 🛡️ Credential Verification Using Blockchain
+**Internship project at Kerala Blockchain Academy**
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+An end-to-end platform for issuing and verifying academic credentials using **Zero-Knowledge Proofs (ZKP)** and **IPFS**.
 
-Try running some of the following tasks:
+## 🚀 Project Overview
+This project solves the issue of credential fraud by allowing institutions to issue digital fingerprints on-chain. Students can prove ownership of their certificates via ZK-SNARKs without revealing private data.
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
->>>>>>> badcbc5 (feat: initial setup of credential system with secure .gitignore)
+## 🛠️ Tech Stack
+- **ZKP Logic:** Circom 2.0 & SnarkJS
+- **Blockchain:** Solidity / Hardhat / Localhost
+- **Storage:** IPFS Hashing
+- **Frontend:** React / Ethers.js / MetaMask
+
+## 📖 How to Run
+1. Start node: `npx hardhat node`
+2. Deploy: `npx hardhat run scripts/deploy.js --network localhost`
+3. Verify: `npx hardhat run scripts/verify-on-chain.js --network localhost`
