@@ -1,22 +1,28 @@
-<<<<<<< HEAD
+# Dependency directories
 node_modules/
-.env
-=======
-node_modules
 .env
 
 # Hardhat files
 /cache
 /artifacts
 
-# TypeChain files
+# ZK Proof files (These are large/generated)
+zkp/certificate_verify_js/
+zkp/*.r1cs
+zkp/*.sym
+
+# TypeChain and Coverage
 /typechain
 /typechain-types
-
-# solidity-coverage files
 /coverage
 /coverage.json
 
-# Hardhat Ignition default folder for deployments against a local node
+# Hardhat Ignition
 ignition/deployments/chain-31337
->>>>>>> badcbc5 (feat: initial setup of credential system with secure .gitignore)
+# General ZK build files
+ZKP/
+zkp/
+*.wasm
+*.zkey
+*.ptau
+*.wtns

@@ -1,221 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Blockchain Credential Verifier - Multi-Role System</title>
-    <style>
-        /* CORE STYLING */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f7f6; color: #333; }
-        .container { max-width: 900px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .section { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
-        h1, h2 { color: #2c3e50; }
-        
-        /* FORM ELEMENTS */
-        input[type="text"], input[type="file"] { margin: 10px 0; display: block; width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        button:hover { background: #2980b9; opacity: 0.9; }
-        
-        /* STATUS COLORS */
-        #status, #vStatus, #adminStatus { margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 5px; }
-        .success { color: #27ae60; background: #e8f5e9; }
-        .error { color: #e74c3c; background: #fdeaea; }
+<meta charset="UTF-8">
+<title>Blockchain Credential Verifier - Multi-Role System</title>
 
-        /* STUDENT CREDENTIAL CARDS */
-        .cert-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
-            border-left: 5px solid #3498db;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #e1e8ed;
-        }
-        .cert-info h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; }
-        .cert-info p { margin: 5px 0; font-size: 0.85rem; color: #7f8c8d; }
-        .badge { background: #27ae60; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-bottom: 8px; }
+<!-- ETHERS LIBRARY -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 
-        /* NAVBAR */
-        nav { background: #1e3a8a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .nav-links button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); margin-left: 8px; padding: 8px 15px; font-size: 0.85rem; }
-        .nav-links button:hover { background: white; color: #1e3a8a; }
-    </style>
+<style>
+
+/* CORE STYLING */
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+margin:0;
+background-color:#f4f7f6;
+color:#333;
+}
+
+.container {
+max-width:900px;
+margin:40px auto;
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 4px 6px rgba(0,0,0,0.1);
+}
+
+.section{
+border-bottom:2px solid #eee;
+padding-bottom:20px;
+margin-bottom:20px;
+}
+
+h1,h2{
+color:#2c3e50;
+}
+
+/* FORM */
+
+input[type="text"],input[type="file"]{
+margin:10px 0;
+display:block;
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:6px;
+box-sizing:border-box;
+}
+
+button{
+background:#3498db;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:6px;
+cursor:pointer;
+transition:0.3s;
+font-weight:bold;
+}
+
+button:hover{
+background:#2980b9;
+}
+
+/* STATUS */
+
+#status,#vStatus,#adminStatus{
+margin-top:15px;
+font-weight:bold;
+padding:10px;
+border-radius:5px;
+}
+
+.success{
+color:#27ae60;
+background:#e8f5e9;
+}
+
+.error{
+color:#e74c3c;
+background:#fdeaea;
+}
+
+/* CERT CARD */
+
+.cert-card{
+background:linear-gradient(135deg,#ffffff 0%,#f0f4f8 100%);
+border-left:5px solid #3498db;
+padding:20px;
+margin:15px 0;
+border-radius:8px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+display:flex;
+justify-content:space-between;
+align-items:center;
+border:1px solid #e1e8ed;
+}
+
+.cert-info h3{
+margin:0;
+color:#2c3e50;
+font-size:1.1rem;
+}
+
+.cert-info p{
+margin:5px 0;
+font-size:0.85rem;
+color:#7f8c8d;
+}
+
+.badge{
+background:#27ae60;
+color:white;
+padding:4px 10px;
+border-radius:20px;
+font-size:0.7rem;
+font-weight:bold;
+display:inline-block;
+margin-bottom:8px;
+}
+
+/* NAVBAR */
+
+nav{
+background:#1e3a8a;
+color:white;
+padding:15px 30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position:sticky;
+top:0;
+z-index:1000;
+box-shadow:0 2px 10px rgba(0,0,0,0.2);
+}
+
+.nav-links button{
+background:rgba(255,255,255,0.1);
+border:1px solid rgba(255,255,255,0.3);
+margin-left:8px;
+padding:8px 15px;
+font-size:0.85rem;
+}
+
+.nav-links button:hover{
+background:white;
+color:#1e3a8a;
+}
+
+</style>
 </head>
+
 <body>
 
-    <nav>
-        <div style="display: flex; align-items: center;">
-            <span style="font-size: 1.5rem; margin-right: 10px;">🎓</span>
-            <strong style="font-size: 1.2rem; letter-spacing: 1px;">CREDENTIAL VERIFICATION</strong>
-        </div>
-        <div class="nav-links">
-            <button onclick="showRole('verifier')">Verify Portal</button>
-            <button onclick="showRole('admin')">Admin</button>
-            <button onclick="showRole('institution')">Institution</button>
-        </div>
-    </nav>
+<nav>
+<div style="display:flex;align-items:center;">
+<span style="font-size:1.5rem;margin-right:10px;">🎓</span>
+<strong style="font-size:1.2rem;">CREDENTIAL VERIFICATION</strong>
+</div>
 
-    <div class="container">
-        
-        <div id="verifier-view" class="role-section">
-            <h2>Verify Certificate</h2>
-            <div class="section">
-                <p>Enter the IPFS Hash (CID) to check the authenticity of a document on the blockchain.</p>
-                <input type="text" id="cidInput" placeholder="Enter IPFS Hash (Qm...)">
-                <button onclick="verify()" style="background:#2ecc71; width: 100%;">Check Validity</button>
-                <div id="vStatus"></div>
-            </div>
-        </div>
+<div class="nav-links">
+<button onclick="connectWallet()">Connect MetaMask</button>
+<span id="walletAddress" style="margin-left:10px;font-size:12px;"></span>
 
-        <div id="admin-view" class="role-section" style="display:none;">
-            <h2>Admin Dashboard</h2>
-            <div class="section">
-                <h3>Authorize New Institution (Issuer)</h3>
-                <p>Whitelists an address to allow it to issue certificates.</p>
-                <input type="text" id="instAddress" placeholder="Wallet Address (0x...)">
-                <button onclick="approveInstitution()" style="background:#f39c12">Authorize Issuer</button>
-                <div id="adminStatus"></div>
-            </div>
-        </div>
+<button onclick="showRole('verifier')">Verify Portal</button>
+<button onclick="showRole('admin')">Admin</button>
+<button onclick="showRole('institution')">Institution</button>
+</div>
+</nav>
 
-        <div id="institution-view" class="role-section" style="display:none;">
-            <h2>Institution Portal</h2>
-            <div class="section">
-                <h3>Issue New Credential</h3>
-                <p>Upload the certificate file. It will be stored on IPFS and the hash recorded on-chain.</p>
-                <input type="file" id="certFile">
-                <input type="text" id="holder" placeholder="Recipient Student Wallet Address">
-                <button onclick="issue()" style="width: 100%;">Sign & Mint to Blockchain</button>
-                <div id="status"></div>
-            </div>
-        </div>
+<div class="container">
 
-        <div id="student-view" class="role-section" style="display:none;">
-            <h2>My Digital Credential Wallet</h2>
-            <p>Credentials associated with your decentralized identity.</p>
-            <div id="credentials-container"></div>
-        </div>
+<!-- VERIFY -->
+<div id="verifier-view" class="role-section">
 
-    </div>
+<h2>Verify Certificate</h2>
 
-    <script>
-        const API_URL = "http://localhost:5000";
+<div class="section">
 
-        // ROLE SWITCHING
-        function showRole(roleId) {
-            document.querySelectorAll('.role-section').forEach(sec => sec.style.display = 'none');
-            document.getElementById(roleId + '-view').style.display = 'block';
-            
-            if(roleId === 'student') loadStudentWallet();
-        }
+<input type="text" id="cidInput" placeholder="Enter IPFS Hash">
 
-        // ADMIN LOGIC (Talks to /approve-institution in server.js)
-        async function approveInstitution() {
-            const status = document.getElementById('adminStatus');
-            const addr = document.getElementById('instAddress').value;
-            
-            if(!addr) return alert("Please enter a wallet address!");
+<button onclick="verify()" style="background:#2ecc71;width:100%;">
+Check Validity
+</button>
 
-            status.className = "";
-            status.innerHTML = "⏳ Sending transaction to whitelist address...";
+<div id="vStatus"></div>
 
-            try {
-                const response = await fetch(`${API_URL}/approve-institution`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ address: addr })
-                });
-                const data = await response.json();
-                
-                if(data.success) {
-                    status.className = "success";
-                    status.innerHTML = `✅ Address Authorized!<br><small>TX: ${data.txHash}</small>`;
-                } else { throw new Error(data.error); }
-            } catch (err) {
-                status.className = "error";
-                status.innerText = "❌ Error: " + err.message;
-            }
-        }
+</div>
+</div>
 
-        // STUDENT WALLET DEMO DATA
-        function loadStudentWallet() {
-            const container = document.getElementById('credentials-container');
-            const mockData = [
-                { degree: "B.Tech Computer Science", school: "State University", cid: "QmXoyp...44b" },
-                { degree: "Blockchain Specialization", school: "Online Academy", cid: "QmZ9pQ...72r" }
-            ];
+<!-- ADMIN -->
+<div id="admin-view" class="role-section" style="display:none;">
 
-            container.innerHTML = mockData.map(cert => `
-                <div class="cert-card">
-                    <div class="cert-info">
-                        <span class="badge">VERIFIED BY BLOCKCHAIN</span>
-                        <h3>${cert.degree}</h3>
-                        <p><strong>Issuer:</strong> ${cert.school}</p>
-                        <p><small>IPFS Hash: ${cert.cid}</small></p>
-                    </div>
-                    <button onclick="alert('Generating Zero Knowledge Proof for sharing...')">Share</button>
-                </div>
-            `).join('');
-        }
+<h2>Admin Dashboard</h2>
 
-        // ISSUE LOGIC
-        async function issue() {
-            const status = document.getElementById('status');
-            const fileInput = document.getElementById('certFile');
-            const holder = document.getElementById('holder').value;
+<div class="section">
 
-            if (!fileInput.files[0]) return alert("Please select a file!");
-            
-            status.className = "";
-            status.innerHTML = "⏳ Uploading to IPFS & Mining Transaction...";
-            
-            const formData = new FormData();
-            formData.append('certificate', fileInput.files[0]);
-            formData.append('holderAddress', holder);
+<input type="text" id="instAddress" placeholder="Institution Wallet Address">
 
-            try {
-                const response = await fetch(`${API_URL}/issue`, { method: 'POST', body: formData });
-                const data = await response.json();
-                if(data.success) {
-                    status.className = "success";
-                    status.innerHTML = `✅ Issued Successfully!<br><b>IPFS CID:</b> ${data.ipfsHash}`;
-                } else { throw new Error(data.error); }
-            } catch (err) {
-                status.className = "error";
-                status.innerText = "❌ Error: " + err.message;
-            }
-        }
+<button onclick="approveInstitution()" style="background:#f39c12">
+Authorize Issuer
+</button>
 
-        // VERIFY LOGIC
-        async function verify() {
-            const status = document.getElementById('vStatus');
-            const cid = document.getElementById('cidInput').value;
-            if(!cid) return alert("Enter a CID!");
+<div id="adminStatus"></div>
 
-            status.className = "";
-            status.innerHTML = "⏳ Querying Smart Contract...";
+</div>
+</div>
 
-            try {
-                const response = await fetch(`${API_URL}/verify`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ ipfsHash: cid })
-                });
-                const data = await response.json();
-                if(data.isValid) {
-                    status.className = "success";
-                    status.innerHTML = `✅ VALID CREDENTIAL<br>Issuer: ${data.issuer}<br>Date: ${new Date(data.date * 1000).toLocaleDateString()}`;
-                } else {
-                    status.className = "error";
-                    status.innerText = "❌ INVALID OR REVOKED: Hash not found on blockchain.";
-                }
-            } catch (err) { 
-                status.className = "error";
-                status.innerText = "Error connecting to backend server."; 
-            }
-        }
-    </script>
+<!-- INSTITUTION -->
+
+<div id="institution-view" class="role-section" style="display:none;">
+
+<h2>Institution Portal</h2>
+
+<div class="section">
+
+<input type="file" id="certFile">
+
+<input type="text" id="holder" placeholder="Student Wallet Address">
+
+<button onclick="issue()" style="width:100%">
+Issue Credential
+</button>
+
+<div id="status"></div>
+
+</div>
+</div>
+
+</div>
+
+
+<script>
+
+const API_URL="http://localhost:5000";
+
+/* METAMASK LOGIN */
+
+let provider;
+let signer;
+let userAddress;
+
+async function connectWallet(){
+
+if(typeof window.ethereum==="undefined"){
+
+alert("Please install MetaMask");
+
+return;
+
+}
+
+try{
+
+provider=new ethers.BrowserProvider(window.ethereum);
+
+await provider.send("eth_requestAccounts",[]);
+
+signer=await provider.getSigner();
+
+userAddress=await signer.getAddress();
+
+document.getElementById("walletAddress").innerText="Connected: "+userAddress;
+
+}catch(error){
+
+console.error(error);
+
+alert("MetaMask connection failed");
+
+}
+
+}
+
+
+/* ROLE SWITCH */
+
+function showRole(roleId){
+
+document.querySelectorAll('.role-section').forEach(sec=>sec.style.display='none');
+
+document.getElementById(roleId+'-view').style.display='block';
+
+}
+
+
+/* ADMIN */
+
+async function approveInstitution(){
+alert("approve button clicked");
+const addr=document.getElementById('instAddress').value;
+
+const status=document.getElementById('adminStatus');
+
+try{
+
+const res=await fetch(`${API_URL}/approve-institution`,{
+
+method:'POST',
+
+headers:{'Content-Type':'application/json'},
+
+body:JSON.stringify({address:addr})
+
+});
+
+const data=await res.json();
+
+if(data.success){
+
+status.className="success";
+
+status.innerHTML="Issuer Approved<br>TX:"+data.txHash;
+
+}
+
+}catch(e){
+
+status.className="error";
+
+status.innerText="Error approving issuer";
+
+}
+
+}
+
+
+/* ISSUE */
+
+async function issue(){
+
+const status=document.getElementById('status');
+
+const file=document.getElementById('certFile').files[0];
+
+const holder=document.getElementById('holder').value;
+
+const formData=new FormData();
+
+formData.append("certificate",file);
+
+formData.append("holderAddress",holder);
+
+try{
+
+const res=await fetch(`${API_URL}/issue`,{
+
+method:"POST",
+
+body:formData
+
+});
+
+const data=await res.json();
+
+if(data.success){
+
+status.className="success";
+
+status.innerHTML="Issued!<br>IPFS:"+data.ipfsHash;
+
+}
+
+}catch(e){
+
+status.className="error";
+
+status.innerText="Error issuing certificate";
+
+}
+
+}
+
+
+/* VERIFY */
+
+async function verify(){
+
+const cid=document.getElementById('cidInput').value;
+
+const status=document.getElementById('vStatus');
+
+try{
+
+const res=await fetch(`${API_URL}/verify`,{
+
+method:'POST',
+
+headers:{'Content-Type':'application/json'},
+
+body:JSON.stringify({ipfsHash:cid})
+
+});
+
+const data=await res.json();
+
+if(data.isValid){
+
+status.className="success";
+
+status.innerHTML="Valid Certificate<br>Issuer:"+data.issuer;
+
+}else{
+
+status.className="error";
+
+status.innerText="Invalid Certificate";
+
+}
+
+}catch(e){
+
+status.className="error";
+
+status.innerText="Server error";
+
+}
+
+}
+
+</script>
+
 </body>
 </html>
